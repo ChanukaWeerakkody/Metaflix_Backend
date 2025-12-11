@@ -15,6 +15,7 @@ use App\Models\Setting;
 use Carbon\Carbon;
 use App\Models\Log;
 use function Pest\Laravel\get;
+use App\Models\Permission;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -46,7 +47,6 @@ class UserRepository implements UserRepositoryInterface
             'error' => $error_message,
         ]);
     }
-
 
     public function addSystemRole(array $params)
     {
@@ -231,4 +231,195 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
+    public function addPermission(array $params)
+    {
+        try {
+            $role_id = (int) ($params['role_id'] ?? 0);
+            $permission = $params['permission'] ?? null;
+            $permission_key = $params['permission_key'] ?? null;
+
+            if (!$role_id || !$permission || !$permission_key) {
+                return [
+                    'success' => false,
+                    'message' => 'role_id, permission and permission_key are required.',
+                    'data' => null,
+                ];
+            }
+
+            $permission = Permission::create([
+                'role_id' => $role_id,
+                'permission' => $permission,
+                'permission_key' => $permission_key,
+                'is_active' => 1
+            ]);
+
+            if ($permission) {
+                return [
+                    'success' => true,
+                    'message' => 'Permission added successfully.',
+                    'data' => [
+                        'permission_id' => $permission->id,
+                    ]
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Permission added unsuccessfully.',
+                    'data' => null
+                ];
+            }
+        } catch (\Throwable $e) {
+            if (!empty($params['url'])) {
+                $this->logError($params['url'], $e->getMessage());
+            }
+            return [
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'data' => null,
+            ];
+        }
+    }
+
+    public function editPermission(array $params)
+    {
+        try {
+            $role_id = (int) ($params['role_id'] ?? 0);
+            $permission_id = (int) ($params['permission_id'] ?? 0);
+            $permission = $params['permission'] ?? null;
+            $permission_key = $params['permission_key'] ?? null;
+
+            if (!$permission_id || !$permission || !$permission_key) {
+                return [
+                    'success' => false,
+                    'message' => 'permission_id, permission and permission_key are required.',
+                    'data' => null,
+                ];
+            }
+
+            $permission_exists = Permission::where('is_active', 1)
+                ->where('permission', $permission)
+                ->where('id', '!=', $permission_id)
+                ->first();
+
+            if ($permission_exists) {
+                return [
+                    'success' => false,
+                    'message' => 'Permission already exists.',
+                    'data' => null
+                ];
+            } else {
+                $permission_db = Permission::where('id', $permission_id)
+                    ->where('is_active', 1)
+                    ->first();
+
+                if ($permission_db) {
+                    $permission_db->role_id = $role_id;
+                    $permission_db->permission = $permission;
+                    $permission_db->permission_key = $permission_key;
+                    $permission_db->save();
+
+                    return [
+                        'success' => true,
+                        'message' => 'Permission updated successfully.',
+                        'data' => [
+                            'permission_id' => $permission_id,
+                        ]
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Permission not found.',
+                        'data' => null
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            if (!empty($params['url'])) {
+                $this->logError($params['url'], $e->getMessage());
+            }
+            return [
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'data' => null,
+            ];
+        }
+    }
+
+    public function getPermissions(array $params)
+    {
+        try {
+            $permissions = Permission::where('is_active', 1)
+                ->get();
+
+            if ($permissions->isEmpty()) {
+                return [
+                    'success' => true,
+                    'message' => 'Permissions fetched successfully.',
+                    'data' => null
+                ];
+            } else {
+                return [
+                    'success' => true,
+                    'message' => 'Permissions fetched successfully.',
+                    'data' => $permissions->toArray()
+                ];
+            }
+        } catch (\Throwable $e) {
+            if (!empty($params['url'])) {
+                $this->logError($params['url'], $e->getMessage());
+            }
+            return [
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'data' => null,
+            ];
+        }
+    }
+
+    public function deletePermission(array $params)
+    {
+        try {
+            $permission_id = (int) ($params['permission_id'] ?? 0);
+
+            if ($permission_id <= 0) {
+                return [
+                    'success' => false,
+                    'message' => 'permission_id is required.',
+                    'data' => null,
+                ];
+            }
+
+            $permission = Permission::where('id', $permission_id)
+                ->where('is_active', 1)
+                ->first();
+
+            if ($permission) {
+                $permission->is_active = 0;
+                $permission->save();
+
+                return [
+                    'success' => true,
+                    'message' => 'Permission deleted successfully.',
+                    'data' => [
+                        'permission_id' => $permission_id,
+                    ]
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Permission not found.',
+                    'data' => null
+                ];
+            }
+        } catch (\Throwable $e) {
+            if (!empty($params['url'])) {
+                $this->logError($params['url'], $e->getMessage());
+            }
+            return [
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'data' => null,
+            ];
+        }
+    }
 }

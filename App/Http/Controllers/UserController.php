@@ -142,4 +142,135 @@ class UserController extends Controller
 
         return response()->json(['success' => $output['success'], 'message' => $output['message'], 'output' => $output['data']], 200);
     }
+
+    public function addPermission(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'permission' => 'required|string',
+                'role_id' => 'required|int',
+                'permission_key' => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                $output['success'] = false;
+                $output['message'] = "Data didn't passed correctly.";
+                $output['data'] = $validator->errors()->first();
+            } else {
+                $data = json_decode($request->getContent(), true);
+                $data['url'] = $request->url();
+                $out_data = $this->userRepository->addPermission($data);
+
+                $output['success'] = $out_data['success'];
+                $output['message'] = $out_data['message'];
+                $output['data'] = $out_data['data'];
+            }
+        } catch (\Exception $e) {
+            $url = $request->url();
+            $error_message = $e->getMessage();
+            $this->logError($url, $error_message);
+            $output['success'] = false;
+            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
+            $output['data'] = null;
+        }
+
+        return response()->json(['success' => $output['success'], 'message' => $output['message'], 'output' => $output['data']], 200);
+    }
+
+    public function editPermission(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'role_id' => 'required|int',
+                'permission' => 'required|string',
+                'permission_key' => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                $output['success'] = false;
+                $output['message'] = "Data didn't passed correctly.";
+                $output['data'] = $validator->errors()->first();
+            } else {
+                $data = json_decode($request->getContent(), true);
+                $data['url'] = $request->url();
+                $out_data = $this->userRepository->editPermission($data);
+
+                $output['success'] = $out_data['success'];
+                $output['message'] = $out_data['message'];
+                $output['data'] = $out_data['data'];
+            }
+        } catch (\Exception $e) {
+            $url = $request->url();
+            $error_message = $e->getMessage();
+            $this->logError($url, $error_message);
+            $output['success'] = false;
+            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
+            $output['data'] = null;
+        }
+
+        return response()->json(['success' => $output['success'], 'message' => $output['message'], 'output' => $output['data']], 200);
+    }
+
+    public function getPermissions(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+            ]);
+
+            if ($validator->fails()) {
+                $output['success'] = false;
+                $output['message'] = "Data didn't passed correctly.";
+                $output['data'] = $validator->errors()->first();
+            } else {
+                $data = json_decode($request->getContent(), true);
+                $data['url'] = $request->url();
+                $out_data = $this->userRepository->getPermissions($data);
+
+                $output['success'] = $out_data['success'];
+                $output['message'] = $out_data['message'];
+                $output['data'] = $out_data['data'];
+            }
+        } catch (\Exception $e) {
+            $url = $request->url();
+            $error_message = $e->getMessage();
+            $this->logError($url, $error_message);
+            $output['success'] = false;
+            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
+            $output['data'] = null;
+        }
+
+        return response()->json(['success' => $output['success'], 'message' => $output['message'], 'output' => $output['data']], 200);
+    }
+
+    public function deletePermission(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'permission_id' => 'required|int'
+            ]);
+
+            if ($validator->fails()) {
+                $output['success'] = false;
+                $output['message'] = "Data didn't passed correctly.";
+                $output['data'] = $validator->errors()->first();
+            } else {
+                $data = json_decode($request->getContent(), true);
+                $data['url'] = $request->url();
+                $out_data = $this->userRepository->deletePermission($data);
+
+                $output['success'] = $out_data['success'];
+                $output['message'] = $out_data['message'];
+                $output['data'] = $out_data['data'];
+            }
+        } catch (\Exception $e) {
+            $url = $request->url();
+            $error_message = $e->getMessage();
+            $this->logError($url, $error_message);
+            $output['success'] = false;
+            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
+            $output['data'] = null;
+        }
+
+        return response()->json(['success' => $output['success'], 'message' => $output['message'], 'output' => $output['data']], 200);
+    }
 }

@@ -19,6 +19,11 @@ Route::post('role/edit', [UserController::class, 'editSystemRole']);
 Route::post('role/all', [UserController::class, 'getSystemRoles']);
 Route::post('role/delete', [UserController::class, 'deleteSystemRole']);
 
+Route::post('permission/add', [UserController::class, 'addPermission']);
+Route::post('permission/edit', [UserController::class, 'editPermission']);
+Route::post('permission/all', [UserController::class, 'getPermissions']);
+Route::post('permission/delete', [UserController::class, 'deletePermission']);
+
 
 Route::group(['middleware' => ['jwt.auth']], function () {
     Route::post('auth/user', [UserController::class, 'userData']);
