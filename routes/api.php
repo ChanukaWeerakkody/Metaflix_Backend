@@ -1,6 +1,8 @@
 <?php
 
 //use Illuminate\Http\Request;
+
+use App\Http\Controllers\MovieController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 // use App\Http\Controllers\SettingController;
@@ -28,4 +30,8 @@ Route::post('permission/delete', [UserController::class, 'deletePermission']);
 Route::group(['middleware' => ['jwt.auth']], function () {
     Route::post('auth/user', [UserController::class, 'userData']);
     // Route::post('role/add', [UserController::class, 'addSystemRole']);
+
+
 });
+
+Route::post('category/create', [MovieController::class, 'createCategory']);
