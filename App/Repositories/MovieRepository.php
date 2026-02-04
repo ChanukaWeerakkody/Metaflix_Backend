@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Category;
 use App\Models\Language;
+use App\Models\MovieRole;
 use App\Repositories\Interfaces\MovieRepositoryInterface;
 
 class MovieRepository implements MovieRepositoryInterface
@@ -406,5 +407,175 @@ class LanguageRepository
             'message' => 'Language fetched successfully.',
             'data' => $language,
         ];
+    }
+
+    public function createMovieRoll(array $data)
+    {
+
+        $roll_name =  $data['role'] ?? null;
+        $created_by = (int) ($data['created_by'] ?? 0);
+
+        if (!$roll_name || $created_by <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Roll name and created by are required.',
+                'data' => null,
+            ];
+        }
+        $roll = MovieRole::where('role', $roll_name)
+            ->where('is_active', 1)
+            ->first();
+
+        if ($roll) {
+            return [
+                'success' => false,
+                'message' => 'Roll already exists.',
+                'data' => null,
+            ];
+        } else {
+            $roll = MovieRole::create([
+                'role' => $roll_name,
+                'is_active' => 1,
+                'created_by' => $created_by,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            return [
+                'success' => true,
+                'message' => 'Roll created successfully.',
+                'data' => $roll,
+            ];
+        }
+    }
+
+    public function getMovieRolls()
+    {
+        $roll = MovieRole::where('is_active', 1)
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
+        return [
+            'success' => true,
+            'message' => 'Rolls fetched successfully.',
+            'data' => $roll,
+        ];
+    }
+
+    public function getSingleMovieRoll(int $roll_id)
+    {
+        if ($roll_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Roll id is required.',
+                'data' => null,
+            ];
+        }
+
+        $roll = MovieRole::where('id', $roll_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$roll) {
+            return [
+                'success' => false,
+                'message' => 'Roll not found.',
+                'data' => null,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Roll fetched successfully.',
+            'data' => $roll,
+        ];
+    }
+
+    public function updateMovieRoll(array $data)
+    {
+        $roll_id = (int) ($data['roll_id'] ?? 0);
+        $roll_name = $data['role'] ?? null;
+        $updated_by = (int) ($data['updated_by'] ?? 0);
+
+        if ($roll_id <= 0 || !$roll_name || $updated_by <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Roll id, roll name and updated by are required.',
+                'data' => null,
+            ];
+        }
+
+        $roll = MovieRole::where('id', $roll_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$roll) {
+            return [
+                'success' => false,
+                'message' => 'Roll not found.',
+                'data' => null,
+            ];
+        }
+
+        $existing_roll = MovieRole::where('role', $roll_name)
+            ->where('is_active', 1)
+            ->where('id', '!=', $roll_id)
+            ->first();
+
+        if ($existing_roll) {
+            return [
+                'success' => false,
+                'message' => 'Roll already exists.',
+                'data' => null,
+            ];
+        } else {
+            $roll->update([
+                'role' => $roll_name,
+                'updated_by' => $updated_by,
+                'updated_at' => now(),
+            ]);
+            return [
+                'success' => true,
+                'message' => 'Roll updated successfully.',
+                'data' => $roll,
+            ];
+        }
+    }
+
+    public function deleteMovieRoll(array $data)
+    {
+        $roll_id = (int) ($data['roll_id'] ?? 0);
+        $deleted_by = (int) ($data['deleted_by'] ?? 0);
+
+        if ($roll_id <= 0 || $deleted_by <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Roll id and deleted by are required.',
+                'data' => null,
+            ];
+        }
+
+        $roll = MovieRole::where('id', $roll_id)
+            ->where('is_active', 1)
+            ->first();
+
+
+        if (!$roll) {
+            return [
+                'success' => false,
+                'message' => 'Roll not found.',
+                'data' => null,
+            ];
+        } else {
+            $roll->update([
+                'is_active' => 0,
+                'deleted_by' => $deleted_by,
+                'deleted_at' => now(),
+            ]);
+            return [
+                'success' => true,
+                'message' => 'Roll deleted successfully.',
+                'data' => $roll,
+            ];
+        }
     }
 }

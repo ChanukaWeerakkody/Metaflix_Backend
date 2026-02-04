@@ -12,6 +12,7 @@ class MovieController extends Controller
     protected $movieRepository;
     protected $languageRepository;
 
+
     public function __construct(
         MovieRepositoryInterface $movieRepository,
         \App\Repositories\LanguageRepository $languageRepository
@@ -277,7 +278,7 @@ class MovieController extends Controller
 
             $data = [
                 'language_id' => (int) $language_id,
-                'deleted_by'  => 1,
+                'deleted_by' => 1,
             ];
 
             $out_data = $this->languageRepository->deleteLanguage($data);
@@ -285,14 +286,161 @@ class MovieController extends Controller
             return response()->json([
                 'success' => $out_data['success'],
                 'message' => $out_data['message'],
-                'output'  => $out_data['data'],
+                'output' => $out_data['data'],
             ], 200);
         } catch (\Exception $e) {
             $this->logError(request()->url(), $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong, please try again.',
-                'output'  => null
+                'output' => null
+            ], 500);
+        }
+    }
+
+    public function createMovieRoll(Request $request)
+    {
+        try {
+            $input = $request->all();
+
+            // Validation for bulk or single
+            $validator = Validator::make(
+                $input,
+                isset($input[0])
+                    ? ['*.role' => 'required|string', '*.created_by' => 'required|integer']
+                    : ['role' => 'required|string', 'created_by' => 'required|integer']
+            );
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'output' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $results = [];
+
+            if (isset($input[0])) {
+                // Bulk insert
+                foreach ($input as $item) {
+                    $results[] = $this->languageRepository->createMovieRoll($item);
+                }
+            } else {
+                // Single insert
+                $results[] = $this->languageRepository->createMovieRoll($input);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Process completed',
+                'output' => $results,
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError($request->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    public function getAllMovieRoll()
+    {
+        try {
+            $out_data = $this->languageRepository->getMovieRolls();
+
+            $out_put = [
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'data' => $out_data['data'],
+            ];
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+
+            $out_put = [
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'data' => null,
+            ];
+        }
+
+        return response()->json([
+            'success' => $out_put['success'],
+            'message' => $out_put['message'],
+            'output' => $out_put['data'],
+        ], 200);
+    }
+
+    public function getMovieRollById($roll_id)
+    {
+        try {
+            $out_data = $this->languageRepository->getSingleMovieRoll($roll_id);
+            $output['success'] = $out_data['success'];
+            $output['message'] = $out_data['message'];
+            $output['data'] = $out_data['data'];
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            $output['success'] = false;
+            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
+            $output['data'] = null;
+        } finally {
+            return response()->json($output, 200);
+        }
+    }
+
+    public function updateMovieRoll(Request $request, $roll_id)
+    {
+        try {
+            $validator = Validator::make(request()->all(), [
+                'role' => 'required|string',
+                'updated_by' => 'required|integer',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'output' => $validator->errors()->first()
+                ], 422);
+            }
+            $data = $request->all();
+            $data['roll_id'] = (int) $roll_id;
+            $out_data = $this->languageRepository->updateMovieRoll($data);
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    public function deleteMovieRoll(Request $request, $roll_id)
+    {
+        try {
+            $data = [
+                'roll_id' => (int) $roll_id,
+                'deleted_by' => 1,
+            ];
+            $out_data = $this->languageRepository->deleteMovieRoll($data);
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again.',
+                'output' => null
             ], 500);
         }
     }

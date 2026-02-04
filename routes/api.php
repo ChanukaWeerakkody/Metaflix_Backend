@@ -45,3 +45,9 @@ Route::put('language/{language_id}', [MovieController::class, 'updateLanguage'])
 Route::delete('language/{language_id}', [MovieController::class, 'deleteLanguage']);
 Route::get('language/all', [MovieController::class, 'getAllLanguages']);
 Route::get('language/{language_id}', [MovieController::class, 'getLanguageById']);
+
+Route::post('movieRoll/create', [MovieController::class, 'createMovieRoll']);
+Route::get('movieRoll/all', [MovieController::class, 'getAllMovieRoll']);
+Route::put('movieRoll/{movieRoll_id}', [MovieController::class, 'updateMovieRoll']);
+Route::delete('movieRoll/{movieRoll_id}', [MovieController::class, 'deleteMovieRoll']);
+Route::get('movieRoll/{movieRoll_id}', [MovieController::class, 'getMovieRollById']);
