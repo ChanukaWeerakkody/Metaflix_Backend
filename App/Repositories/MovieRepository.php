@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Category;
 use App\Models\Language;
+use App\Models\Movie;
 use App\Models\MovieRole;
 use App\Repositories\Interfaces\MovieRepositoryInterface;
 
@@ -577,5 +578,214 @@ class LanguageRepository
                 'data' => $roll,
             ];
         }
+    }
+
+    // Movie Repository
+
+
+    public function createMovie(array $data)
+    {
+        $title        = $data['title'] ?? null;
+        $sub_title    = $data['sub_title'] ?? null;
+        $rate         = $data['rate'] ?? null;
+        $quality      = $data['quality'] ?? null;
+        $duration     = $data['duration'] ?? null;
+        $country      = $data['country'] ?? null;
+        $language_id  = $data['language_id'] ?? null;
+        $category_id  = $data['category_id'] ?? null;
+        $year         = $data['year'] ?? null;
+        $subtitle_by  = $data['subtitle_by'] ?? null;
+        $description  = $data['description'] ?? null;
+        $cover_image  = $data['cover_image'] ?? null;
+        $main_image   = $data['main_image'] ?? null;
+
+
+        if (
+            !$title || !$sub_title || !$rate || !$quality || !$duration ||
+            !$country || !$language_id || !$category_id || !$year ||
+            !$subtitle_by || !$description || !$cover_image || !$main_image
+        ) {
+            return [
+                'success' => false,
+                'message' => 'All fields are required.',
+                'data' => null,
+            ];
+        }
+
+
+        $movie = Movie::where('title', $title)->first();
+
+        if ($movie) {
+            return [
+                'success' => false,
+                'message' => 'Movie already exists.',
+                'data' => null,
+            ];
+        }
+
+
+        $movie = Movie::create([
+            'title'        => $title,
+            'sub_title'    => $sub_title,
+            'rate'         => $rate,
+            'quality'      => $quality,
+            'duration'     => $duration,
+            'country'      => $country,
+            'language_id'  => (int) $language_id,
+            'category_id'  => $category_id,
+            'year'         => (int) $year,
+            'subtitle_by'  => $subtitle_by,
+            'description'  => $description,
+            'cover_image'  => $cover_image,
+            'main_image'   => $main_image,
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Movie created successfully.',
+            'data' => $movie,
+        ];
+    }
+
+    public function getAllMovies()
+    {
+        $movies = Movie::where('is_active', 1)
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
+        return [
+            'success' => true,
+            'message' => 'Movies fetched successfully.',
+            'data' => $movies,
+        ];
+    }
+
+    public function getSingleMovie(int $movie_id)
+    {
+        if ($movie_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Movie id is required.',
+                'data' => null,
+            ];
+        }
+
+        $movie = Movie::where('id', $movie_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$movie) {
+            return [
+                'success' => false,
+                'message' => 'Movie not found.',
+                'data' => null,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Movie fetched successfully.',
+            'data' => $movie,
+        ];
+    }
+
+
+    public function updateMovie(array $data)
+    {
+        $movie_id = (int) ($data['movie_id'] ?? 0);
+        $title        = $data['title'] ?? null;
+        $sub_title    = $data['sub_title'] ?? null;
+        $rate         = $data['rate'] ?? null;
+        $quality      = $data['quality'] ?? null;
+        $duration     = $data['duration'] ?? null;
+        $country      = $data['country'] ?? null;
+        $language_id  = $data['language_id'] ?? null;
+        $category_id  = $data['category_id'] ?? null;
+        $year         = $data['year'] ?? null;
+        $subtitle_by  = $data['subtitle_by'] ?? null;
+        $description  = $data['description'] ?? null;
+        $cover_image  = $data['cover_image'] ?? null;
+        $main_image   = $data['main_image'] ?? null;
+
+        if (
+            !$movie_id || !$title || !$sub_title || !$rate || !$quality || !$duration ||
+            !$country || !$language_id || !$category_id || !$year ||
+            !$subtitle_by || !$description || !$cover_image || !$main_image
+        ) {
+            return [
+                'success' => false,
+                'message' => 'All fields are required.',
+                'data' => null,
+            ];
+        }
+
+        $movie = Movie::where('id', $movie_id)->first();
+
+        if (!$movie) {
+            return [
+                'success' => false,
+                'message' => 'Movie not found.',
+                'data' => null,
+            ];
+        }
+
+        $exist_movie = Movie::where('title', $title)->where('id', '!=', $movie_id)->first();
+
+        if ($exist_movie) {
+            return [
+                'success' => false,
+                'message' => 'Movie already exists.',
+                'data' => null,
+            ];
+        } else {
+            $movie->update([
+                'title'        => $title,
+                'sub_title'    => $sub_title,
+                'rate'         => $rate,
+                'quality'      => $quality,
+                'duration'     => $duration,
+                'country'      => $country,
+                'language_id'  => $language_id,
+                'category_id'  => $category_id,
+                'year'         => $year,
+                'subtitle_by'  => $subtitle_by,
+                'description'  => $description,
+                'cover_image'  => $cover_image,
+                'main_image'   => $main_image,
+            ]);
+            return [
+                'success' => true,
+                'message' => 'Movie updated successfully.',
+                'data' => $movie,
+            ];
+        }
+    }
+
+
+    public function deleteMovie(int $movie_id)
+    {
+        if ($movie_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Movie id is required.',
+                'data' => null,
+            ];
+        }
+
+        $movie = Movie::where('id', $movie_id)->first();
+
+        if (!$movie) {
+            return [
+                'success' => false,
+                'message' => 'Movie not found.',
+                'data' => null,
+            ];
+        }
+        $movie->update(['is_active' => 0]);
+        return [
+            'success' => true,
+            'message' => 'Movie deleted successfully.',
+            'data' => $movie,
+        ];
     }
 }

@@ -51,3 +51,9 @@ Route::get('movieRoll/all', [MovieController::class, 'getAllMovieRoll']);
 Route::put('movieRoll/{movieRoll_id}', [MovieController::class, 'updateMovieRoll']);
 Route::delete('movieRoll/{movieRoll_id}', [MovieController::class, 'deleteMovieRoll']);
 Route::get('movieRoll/{movieRoll_id}', [MovieController::class, 'getMovieRollById']);
+
+Route::post('movie/create', [MovieController::class, 'createMovie']);
+Route::get('movie/all', [MovieController::class, 'getAllMovies']);
+Route::get('movie/{movie_id}', [MovieController::class, 'getMovieById']);
+Route::put('movie/{movie_id}', [MovieController::class, 'updateMovie']);
+Route::delete('movie/{movie_id}', [MovieController::class, 'deleteMovie']);
