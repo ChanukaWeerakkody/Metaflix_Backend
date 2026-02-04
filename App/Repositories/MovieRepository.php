@@ -3,11 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\Category;
+use App\Models\Language;
 use App\Repositories\Interfaces\MovieRepositoryInterface;
 
 class MovieRepository implements MovieRepositoryInterface
 {
 
+    /* ===== Category Repository ===== */
 
     public function createCategory(array $data)
     {
@@ -70,11 +72,11 @@ class MovieRepository implements MovieRepositoryInterface
             ];
         }
 
-        $catgegory = Category::where('id', $category_id)
+        $category = Category::where('id', $category_id)
             ->where('is_active', 1)
             ->first();
 
-        if (!$catgegory) {
+        if (!$category) {
             return [
                 'success' => false,
                 'message' => 'Category not found.',
@@ -93,7 +95,7 @@ class MovieRepository implements MovieRepositoryInterface
                 'data' => null,
             ];
         }
-        $catgegory->update([
+        $category->update([
             'category_name' => $category_name,
             'updated_by' => $updated_by,
             'updated_at' => now(),
@@ -183,6 +185,226 @@ class MovieRepository implements MovieRepositoryInterface
             'success' => true,
             'message' => 'Category fetched successfully.',
             'data' => $category,
+        ];
+    }
+}
+
+
+/* ===== Language Repository ===== */
+
+class LanguageRepository
+{
+    public function createLanguage(array $data)
+    {
+        $language_name = $data['language'] ?? null;
+
+        if (!$language_name) {
+            return [
+                'success' => false,
+                'message' => 'Language name is required.',
+                'data' => null,
+            ];
+        }
+
+        $language = Language::where('language', $language_name)
+            ->where('is_active', 1)
+            ->first();
+
+        if ($language) {
+            return [
+                'success' => false,
+                'message' => 'Language already exists.',
+                'data' => null,
+            ];
+        } else {
+            $language = Language::create([
+                'language' => $language_name,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Language created successfully.',
+                'data' => $language,
+            ];
+        }
+    }
+
+    public function getAllLanguages()
+    {
+        $language = Language::where('is_active', 1)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return [
+            'success' => true,
+            'message' => 'Languages fetched successfully.',
+            'data' => $language,
+        ];
+    }
+
+    public function getSingleLanguage(int $language_id)
+    {
+        if ($language_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Language id is required.',
+                'data' => null,
+            ];
+        }
+
+        $language = Language::where('id', $language_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$language) {
+            return [
+                'success' => false,
+                'message' => 'Language not found.',
+                'data' => null,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Language fetched successfully.',
+            'data' => $language,
+        ];
+    }
+
+    public function updateLanguage(array $data)
+    {
+        $language_id = (int) ($data['language_id'] ?? 0);
+        $language_name = $data['language'] ?? null;
+        $updated_by = (int) ($data['updated_by'] ?? 0);
+
+        if ($language_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Language id is required.',
+                'data' => null,
+            ];
+        }
+
+        if (!$language_name) {
+            return [
+                'success' => false,
+                'message' => 'Language name is required.',
+                'data' => null,
+            ];
+        }
+
+        if ($updated_by <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Updated by is required.',
+                'data' => null,
+            ];
+        }
+
+        $language = Language::where('id', $language_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$language) {
+            return [
+                'success' => false,
+                'message' => 'Language not found.',
+                'data' => null,
+            ];
+        }
+
+        $existing_language = Language::where('language', $language_name)
+            ->where('is_active', 1)
+            ->where('id', '!=', $language_id)
+            ->first();
+
+        if ($existing_language) {
+            return [
+                'success' => false,
+                'message' => 'Language already exists.',
+                'data' => null,
+            ];
+        }
+
+        $language->language = $language_name;
+        $language->updated_by = $updated_by;
+        $language->updated_at = now();
+        $language->save();
+
+        return [
+            'success' => true,
+            'message' => 'Language updated successfully.',
+            'data' => $language,
+        ];
+    }
+
+    public function deleteLanguage(array $data)
+    {
+        $language_id = (int) ($data['language_id'] ?? 0);
+        $deleted_by = (int) ($data['deleted_by'] ?? 0);
+
+        if ($language_id <= 0 || $deleted_by <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Language id and deleted by are required.',
+                'data' => null,
+            ];
+        }
+
+        $language = Language::where('id', $language_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$language) {
+            return [
+                'success' => false,
+                'message' => 'Language not found.',
+                'data' => null,
+            ];
+        }
+
+        $language->update([
+            'is_active' => 0,
+            'deleted_by' => $deleted_by,
+            'deleted_at' => now(),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Language deleted successfully.',
+            'data' => null,
+        ];
+    }
+
+    public function getSingaleLanguage(int $language_id)
+    {
+        if ($language_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Language id is required.',
+                'data' => null,
+            ];
+        }
+
+        $language = Language::where('id', $language_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$language) {
+            return [
+                'success' => false,
+                'message' => 'Language not found.',
+                'data' => null,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Language fetched successfully.',
+            'data' => $language,
         ];
     }
 }
