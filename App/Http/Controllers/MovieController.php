@@ -10,18 +10,11 @@ use Illuminate\Support\Facades\Validator;
 class MovieController extends Controller
 {
     protected $movieRepository;
-    protected $languageRepository;
 
-
-    public function __construct(
-        MovieRepositoryInterface $movieRepository,
-        \App\Repositories\LanguageRepository $languageRepository
-    ) {
+    public function __construct(MovieRepositoryInterface $movieRepository)
+    {
         $this->movieRepository = $movieRepository;
-        $this->languageRepository = $languageRepository;
     }
-
-    /* ===== Caregory APIs ===== */
 
     public function createCategory(Request $request)
     {
@@ -187,7 +180,7 @@ class MovieController extends Controller
             ], 422);
         }
 
-        $out_data = $this->languageRepository->createLanguage($request->all());
+        $out_data = $this->movieRepository->createLanguage($request->all());
 
         return response()->json([
             'success' => $out_data['success'],
@@ -199,7 +192,7 @@ class MovieController extends Controller
     public function getAllLanguages()
     {
         try {
-            $out_data = $this->languageRepository->getAllLanguages();
+            $out_data = $this->movieRepository->getAllLanguages();
             $out_data = [
                 'success' => $out_data['success'],
                 'message' => $out_data['message'],
@@ -221,7 +214,7 @@ class MovieController extends Controller
     public function getLanguageById($language_id)
     {
         try {
-            $out_data = $this->languageRepository->getSingleLanguage($language_id);
+            $out_data = $this->movieRepository->getSingleLanguage($language_id);
             $output['success'] = $out_data['success'];
             $output['message'] = $out_data['message'];
             $output['data'] = $out_data['data'];
@@ -255,7 +248,7 @@ class MovieController extends Controller
             $data = $request->all();
             $data['language_id'] = (int) $language_id;
 
-            $out_data = $this->languageRepository->updateLanguage($data);
+            $out_data = $this->movieRepository->updateLanguage($data);
 
             return response()->json([
                 'success' => $out_data['success'],
@@ -281,7 +274,7 @@ class MovieController extends Controller
                 'deleted_by' => 1,
             ];
 
-            $out_data = $this->languageRepository->deleteLanguage($data);
+            $out_data = $this->movieRepository->deleteLanguage($data);
 
             return response()->json([
                 'success' => $out_data['success'],
@@ -324,11 +317,11 @@ class MovieController extends Controller
             if (isset($input[0])) {
                 // Bulk insert
                 foreach ($input as $item) {
-                    $results[] = $this->languageRepository->createMovieRoll($item);
+                    $results[] = $this->movieRepository->createMovieRoll($item);
                 }
             } else {
                 // Single insert
-                $results[] = $this->languageRepository->createMovieRoll($input);
+                $results[] = $this->movieRepository->createMovieRoll($input);
             }
 
             return response()->json([
@@ -349,7 +342,7 @@ class MovieController extends Controller
     public function getAllMovieRoll()
     {
         try {
-            $out_data = $this->languageRepository->getMovieRolls();
+            $out_data = $this->movieRepository->getMovieRolls();
 
             $out_put = [
                 'success' => $out_data['success'],
@@ -376,7 +369,7 @@ class MovieController extends Controller
     public function getMovieRollById($roll_id)
     {
         try {
-            $out_data = $this->languageRepository->getSingleMovieRoll($roll_id);
+            $out_data = $this->movieRepository->getSingleMovieRoll($roll_id);
             $output['success'] = $out_data['success'];
             $output['message'] = $out_data['message'];
             $output['data'] = $out_data['data'];
@@ -406,7 +399,7 @@ class MovieController extends Controller
             }
             $data = $request->all();
             $data['roll_id'] = (int) $roll_id;
-            $out_data = $this->languageRepository->updateMovieRoll($data);
+            $out_data = $this->movieRepository->updateMovieRoll($data);
             return response()->json([
                 'success' => $out_data['success'],
                 'message' => $out_data['message'],
@@ -429,7 +422,7 @@ class MovieController extends Controller
                 'roll_id' => (int) $roll_id,
                 'deleted_by' => 1,
             ];
-            $out_data = $this->languageRepository->deleteMovieRoll($data);
+            $out_data = $this->movieRepository->deleteMovieRoll($data);
             return response()->json([
                 'success' => $out_data['success'],
                 'message' => $out_data['message'],
@@ -474,7 +467,7 @@ class MovieController extends Controller
                 ], 422);
             }
             $data = $request->all();
-            $out_data = $this->languageRepository->createMovie($data);
+            $out_data = $this->movieRepository->createMovie($data);
             return response()->json([
                 'success' => $out_data['success'],
                 'message' => $out_data['message'],
@@ -493,7 +486,7 @@ class MovieController extends Controller
     public function getMovieById($movie_id)
     {
         try {
-            $out_data = $this->languageRepository->getSingleMovie($movie_id);
+            $out_data = $this->movieRepository->getSingleMovie($movie_id);
             $output['success'] = $out_data['success'];
             $output['message'] = $out_data['message'];
             $output['data'] = $out_data['data'];
@@ -536,7 +529,7 @@ class MovieController extends Controller
             }
             $data = $request->all();
             $data['movie_id'] = $movie_id;
-            $out_data = $this->languageRepository->updateMovie($data);
+            $out_data = $this->movieRepository->updateMovie($data);
             return response()->json([
                 'success' => $out_data['success'],
                 'message' => $out_data['message'],
@@ -555,9 +548,7 @@ class MovieController extends Controller
     public function deleteMovie($movie_id)
     {
         try {
-
-
-            $out_data = $this->languageRepository->deleteMovie((int) $movie_id);
+            $out_data = $this->movieRepository->deleteMovie($movie_id);
 
             return response()->json([
                 'success' => $out_data['success'],

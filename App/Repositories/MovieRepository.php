@@ -10,9 +10,6 @@ use App\Repositories\Interfaces\MovieRepositoryInterface;
 
 class MovieRepository implements MovieRepositoryInterface
 {
-
-    /* ===== Category Repository ===== */
-
     public function createCategory(array $data)
     {
         $category_name = $data['category_name'] ?? null;
@@ -189,13 +186,7 @@ class MovieRepository implements MovieRepositoryInterface
             'data' => $category,
         ];
     }
-}
 
-
-/* ===== Language Repository ===== */
-
-class LanguageRepository
-{
     public function createLanguage(array $data)
     {
         $language_name = $data['language'] ?? null;
@@ -381,35 +372,6 @@ class LanguageRepository
         ];
     }
 
-    public function getSingaleLanguage(int $language_id)
-    {
-        if ($language_id <= 0) {
-            return [
-                'success' => false,
-                'message' => 'Language id is required.',
-                'data' => null,
-            ];
-        }
-
-        $language = Language::where('id', $language_id)
-            ->where('is_active', 1)
-            ->first();
-
-        if (!$language) {
-            return [
-                'success' => false,
-                'message' => 'Language not found.',
-                'data' => null,
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Language fetched successfully.',
-            'data' => $language,
-        ];
-    }
-
     public function createMovieRoll(array $data)
     {
 
@@ -579,9 +541,6 @@ class LanguageRepository
             ];
         }
     }
-
-    // Movie Repository
-
 
     public function createMovie(array $data)
     {
@@ -761,9 +720,10 @@ class LanguageRepository
         }
     }
 
-
-    public function deleteMovie(int $movie_id)
+    public function deleteMovie(array $data)
     {
+        $movie_id = (int) ($data['movie_id'] ?? 0);
+
         if ($movie_id <= 0) {
             return [
                 'success' => false,
