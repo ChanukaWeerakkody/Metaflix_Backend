@@ -17,6 +17,7 @@ class Language extends Model
         'created_at',
         'updated_at',
 
+
     ];
 
     protected $casts = [
@@ -25,5 +26,6 @@ class Language extends Model
         'is_active' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+
     ];
 }

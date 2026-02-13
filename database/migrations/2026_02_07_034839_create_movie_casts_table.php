@@ -11,21 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Languages', function (Blueprint $table) {
+        Schema::create('movie_casts', function (Blueprint $table) {
             $table->id();
-            $table->string('language')->unique();
-            $table->boolean('is_active')->default(1);
+            $table->foreignId('movie_id')->constrained()->onDelete('cascade');
+            $table->foreignId('movie_role_id')->constrained('movie_roles')->onDelete('cascade');
+            $table->string('full_name');
+            $table->string('cast_name')->nullable();
+            $table->string('cover_image')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
         });
     }
 
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('Languages');
+        Schema::dropIfExists('movie_casts');
     }
 };

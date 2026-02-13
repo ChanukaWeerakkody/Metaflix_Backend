@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\Language;
 use App\Models\Movie;
 use App\Models\MovieRole;
+use App\Models\MovieTrailer;
+use App\Models\MovieCast;
 use App\Repositories\Interfaces\MovieRepositoryInterface;
 
 class MovieRepository implements MovieRepositoryInterface
@@ -233,20 +235,26 @@ class LanguageRepository
             ];
         }
     }
-
-    public function getAllLanguages()
-    {
-        $language = Language::where('is_active', 1)
+public function getAllLanguages($perPage = 5)
+{
+    try {
+        $languages = Language::where('is_active', 1)
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate($perPage);
 
         return [
             'success' => true,
-            'message' => 'Languages fetched successfully.',
-            'data' => $language,
+            'message' => 'Languages fetched successfully',
+            'data' => $languages
+        ];
+    } catch (\Exception $e) {
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => null
         ];
     }
-
+}
     public function getSingleLanguage(int $language_id)
     {
         if ($language_id <= 0) {
@@ -413,7 +421,7 @@ class LanguageRepository
     public function createMovieRoll(array $data)
     {
 
-        $roll_name =  $data['role'] ?? null;
+        $roll_name = $data['role'] ?? null;
         $created_by = (int) ($data['created_by'] ?? 0);
 
         if (!$roll_name || $created_by <= 0) {
@@ -585,19 +593,19 @@ class LanguageRepository
 
     public function createMovie(array $data)
     {
-        $title        = $data['title'] ?? null;
-        $sub_title    = $data['sub_title'] ?? null;
-        $rate         = $data['rate'] ?? null;
-        $quality      = $data['quality'] ?? null;
-        $duration     = $data['duration'] ?? null;
-        $country      = $data['country'] ?? null;
-        $language_id  = $data['language_id'] ?? null;
-        $category_id  = $data['category_id'] ?? null;
-        $year         = $data['year'] ?? null;
-        $subtitle_by  = $data['subtitle_by'] ?? null;
-        $description  = $data['description'] ?? null;
-        $cover_image  = $data['cover_image'] ?? null;
-        $main_image   = $data['main_image'] ?? null;
+        $title = $data['title'] ?? null;
+        $sub_title = $data['sub_title'] ?? null;
+        $rate = $data['rate'] ?? null;
+        $quality = $data['quality'] ?? null;
+        $duration = $data['duration'] ?? null;
+        $country = $data['country'] ?? null;
+        $language_id = $data['language_id'] ?? null;
+        $category_id = $data['category_id'] ?? null;
+        $year = $data['year'] ?? null;
+        $subtitle_by = $data['subtitle_by'] ?? null;
+        $description = $data['description'] ?? null;
+        $cover_image = $data['cover_image'] ?? null;
+        $main_image = $data['main_image'] ?? null;
 
 
         if (
@@ -625,19 +633,19 @@ class LanguageRepository
 
 
         $movie = Movie::create([
-            'title'        => $title,
-            'sub_title'    => $sub_title,
-            'rate'         => $rate,
-            'quality'      => $quality,
-            'duration'     => $duration,
-            'country'      => $country,
-            'language_id'  => (int) $language_id,
-            'category_id'  => $category_id,
-            'year'         => (int) $year,
-            'subtitle_by'  => $subtitle_by,
-            'description'  => $description,
-            'cover_image'  => $cover_image,
-            'main_image'   => $main_image,
+            'title' => $title,
+            'sub_title' => $sub_title,
+            'rate' => $rate,
+            'quality' => $quality,
+            'duration' => $duration,
+            'country' => $country,
+            'language_id' => (int) $language_id,
+            'category_id' => $category_id,
+            'year' => (int) $year,
+            'subtitle_by' => $subtitle_by,
+            'description' => $description,
+            'cover_image' => $cover_image,
+            'main_image' => $main_image,
         ]);
 
         return [
@@ -693,19 +701,19 @@ class LanguageRepository
     public function updateMovie(array $data)
     {
         $movie_id = (int) ($data['movie_id'] ?? 0);
-        $title        = $data['title'] ?? null;
-        $sub_title    = $data['sub_title'] ?? null;
-        $rate         = $data['rate'] ?? null;
-        $quality      = $data['quality'] ?? null;
-        $duration     = $data['duration'] ?? null;
-        $country      = $data['country'] ?? null;
-        $language_id  = $data['language_id'] ?? null;
-        $category_id  = $data['category_id'] ?? null;
-        $year         = $data['year'] ?? null;
-        $subtitle_by  = $data['subtitle_by'] ?? null;
-        $description  = $data['description'] ?? null;
-        $cover_image  = $data['cover_image'] ?? null;
-        $main_image   = $data['main_image'] ?? null;
+        $title = $data['title'] ?? null;
+        $sub_title = $data['sub_title'] ?? null;
+        $rate = $data['rate'] ?? null;
+        $quality = $data['quality'] ?? null;
+        $duration = $data['duration'] ?? null;
+        $country = $data['country'] ?? null;
+        $language_id = $data['language_id'] ?? null;
+        $category_id = $data['category_id'] ?? null;
+        $year = $data['year'] ?? null;
+        $subtitle_by = $data['subtitle_by'] ?? null;
+        $description = $data['description'] ?? null;
+        $cover_image = $data['cover_image'] ?? null;
+        $main_image = $data['main_image'] ?? null;
 
         if (
             !$movie_id || !$title || !$sub_title || !$rate || !$quality || !$duration ||
@@ -739,19 +747,19 @@ class LanguageRepository
             ];
         } else {
             $movie->update([
-                'title'        => $title,
-                'sub_title'    => $sub_title,
-                'rate'         => $rate,
-                'quality'      => $quality,
-                'duration'     => $duration,
-                'country'      => $country,
-                'language_id'  => $language_id,
-                'category_id'  => $category_id,
-                'year'         => $year,
-                'subtitle_by'  => $subtitle_by,
-                'description'  => $description,
-                'cover_image'  => $cover_image,
-                'main_image'   => $main_image,
+                'title' => $title,
+                'sub_title' => $sub_title,
+                'rate' => $rate,
+                'quality' => $quality,
+                'duration' => $duration,
+                'country' => $country,
+                'language_id' => $language_id,
+                'category_id' => $category_id,
+                'year' => $year,
+                'subtitle_by' => $subtitle_by,
+                'description' => $description,
+                'cover_image' => $cover_image,
+                'main_image' => $main_image,
             ]);
             return [
                 'success' => true,
@@ -787,5 +795,316 @@ class LanguageRepository
             'message' => 'Movie deleted successfully.',
             'data' => $movie,
         ];
+    }
+
+
+    //Movie Trailer
+
+    public function createMovieTrailer(array $data)
+    {
+        $movie_id = (int) ($data['movie_id'] ?? 0);
+        $trailer_url = $data['trailer_url'] ?? null;
+        $size = $data['size'] ?? null;
+
+        if (!$movie_id || !$trailer_url || !$size) {
+            return [
+                'success' => false,
+                'message' => 'All fields are required.',
+                'data' => null,
+            ];
+        }
+
+        $movie_trailler = MovieTrailer::where('trailer_url', $trailer_url)
+            ->where('is_active', 1)
+            ->first();
+
+
+        if ($movie_trailler) {
+            return [
+                'success' => false,
+                'message' => 'Trailer already exists.',
+                'data' => null,
+            ];
+        } else {
+            $movie_trailler = MovieTrailer::create([
+                'movie_id' => $movie_id,
+                'trailer_url' => $trailer_url,
+                'size' => $size,
+            ]);
+            return [
+                'success' => true,
+                'message' => 'Trailer created successfully.',
+                'data' => $movie_trailler,
+            ];
+        }
+    }
+
+
+    public function getSingleMovieTrailer(int $movie_trailler_id)
+    {
+        if ($movie_trailler_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Movie id is required.',
+                'data' => null,
+            ];
+        }
+
+        $movie_trailers = MovieTrailer::where('movie_id', $movie_trailler_id)
+            ->where('is_active', 1)
+            ->get();
+        if (!$movie_trailers) {
+            return [
+                'success' => false,
+                'message' => 'Movie trailers not found.',
+                'data' => null,
+            ];
+        } else {
+            return [
+                'success' => true,
+                'message' => 'Movie trailers fetched successfully.',
+                'data' => $movie_trailers,
+            ];
+        }
+    }
+
+    public function getMovieTrailers()
+    {
+        $roll = MovieTrailer::where('is_active', 1)
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+        return [
+            'success' => true,
+            'message' => 'Movie trailers fetched successfully.',
+            'data' => $roll
+        ];
+    }
+
+    public function updateMovieTrailer(array $data)
+    {
+        $trailer_id = (int) ($data['trailer_id'] ?? 0);
+        $trailer_url = $data['trailer_url'] ?? null;
+        $size = $data['size'] ?? null;
+
+        if (!$trailer_id || !$trailer_url || !$size) {
+            return [
+                'success' => false,
+                'message' => 'All fields are required.',
+                'data' => null,
+            ];
+        }
+
+        $movie_trailler = MovieTrailer::where('id', $trailer_id)->first();
+        if (!$movie_trailler) {
+            return [
+                'success' => false,
+                'message' => 'Trailer not found.',
+                'data' => null,
+            ];
+        }
+
+        $exists = MovieTrailer::where('trailer_url', $trailer_url)
+            ->where('is_active', 1)
+            ->first();
+
+        if ($exists) {
+            return [
+                'success' => false,
+                'message' => 'Trailer already exists.',
+                'data' => null,
+            ];
+        }
+        $movie_trailler->update([
+            'trailer_url' => $trailer_url,
+            'size' => $size,
+        ]);
+        return [
+            'success' => true,
+            'message' => 'Trailer updated successfully.',
+            'data' => $movie_trailler,
+        ];
+    }
+
+    public function deleteMovieTrailer(int $trailer_id)
+    {
+        $movie_trailler = MovieTrailer::where('id', $trailer_id)->first();
+        if (!$movie_trailler) {
+            return [
+                'success' => false,
+                'message' => 'Trailer not found.',
+                'data' => null,
+            ];
+        }
+        $movie_trailler->update(['is_active' => 0]);
+        return [
+            'success' => true,
+            'message' => 'Trailer deleted successfully.',
+            'data' => $movie_trailler,
+        ];
+    }
+
+    //Movie Cast 
+
+    public function createMovieCast(array $data)
+    {
+        $cast_id = (int) ($data['cast_id'] ?? 0);
+        $movie_id = (int) ($data['movie_id'] ?? 0);
+        $role = $data['role'] ?? null;
+        $full_name = $data['full_name'] ?? null;
+        $cast_name = $data['cast_name'] ?? null;
+        $image = $data['cover_image'] ?? null;
+        $is_active = $data['is_active'] ?? null;
+
+        if (!$cast_id || !$movie_id || !$role || !$full_name || !$cast_name || !$image || !$is_active) {
+            return [
+                'success' => false,
+                'message' => 'All fields are required.',
+                'data' => null,
+            ];
+        }
+
+        $exists = MovieCast::where('cast_id', $cast_id)
+            ->where('movie_id', $movie_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if ($exists) {
+            return [
+                'success' => false,
+                'message' => 'Cast already exists.',
+                'data' => null,
+            ];
+        }
+
+        $movie_cast = MovieCast::create([
+            'cast_id' => $cast_id,
+            'movie_id' => $movie_id,
+            'role' => $role,
+            'full_name' => $full_name,
+            'cast_name' => $cast_name,
+            'cover_image' => $image,
+            'is_active' => $is_active,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return [
+            'success' => true,
+            'message' => 'Cast created successfully.',
+            'data' => $movie_cast,
+        ];
+    }
+
+    public function getAllMovieCast()
+    {
+        $movie_cast = MovieCast::where('is_active', 1)
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+        return [
+            'success' => true,
+            'message' => 'Movie Cast fetched successfully.',
+            'data' => $movie_cast
+        ];
+    }
+
+    public function getSingleMovieCast(int $movie_id)
+    {
+        if ($movie_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Movie id is required.',
+                'data' => null,
+            ];
+        }
+
+        $movie_cast = MovieCast::where('movie_id', $movie_id)
+            ->where('is_active', 1)
+            ->get();
+        if (!$movie_cast) {
+            return [
+                'success' => false,
+                'message' => 'Movie cast not found.',
+                'data' => null,
+            ];
+        } else {
+            return [
+                'success' => true,
+                'message' => 'Movie cast fetched successfully.',
+                'data' => $movie_cast,
+            ];
+        }
+    }
+
+    public function updateMovieCast(array $data)
+    {
+        $cast_id = (int) ($data['cast_id'] ?? 0);
+        $movie_id = (int) ($data['movie_id'] ?? 0);
+        $role = $data['role'] ?? null;
+        $full_name = $data['full_name'] ?? null;
+        $cast_name = $data['cast_name'] ?? null;
+        $image = $data['cover_image'] ?? null;
+        $is_active = $data['is_active'] ?? null;
+        $created_at = $data['created_by'] ?? null;
+        $updated_at = $data['updated_by'] ?? null;
+
+        if (!$cast_id || !$movie_id || !$role || !$full_name || !$cast_name || !$image || !$is_active || !$created_at || !$updated_at) {
+            return [
+                'success' => false,
+                'message' => 'All fields are required.',
+                'data' => null,
+            ];
+        }
+
+        $movie_cast = MovieCast::where('id', $cast_id)->first();
+        if (!$movie_cast) {
+            return [
+                'success' => false,
+                'message' => 'Cast not found.',
+                'data' => null,
+            ];
+        }
+
+        $movie_cast->update([
+            'movie_id' => $movie_id,
+            'role' => $role,
+            'full_name' => $full_name,
+            'cast_name' => $cast_name,
+            'cover_image' => $image,
+            'is_active' => $is_active,
+            'created_at' => $created_at,
+            'updated_at' => $updated_at,
+        ]);
+        return [
+            'success' => true,
+            'message' => 'Cast updated successfully.',
+            'data' => $movie_cast,
+        ];
+    }
+
+    public function deleteMovicast(int $cast_id)
+    {
+
+        if ($cast_id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Cast id is required.',
+                'data' => null,
+            ];
+        }
+
+        $movie_cast = MovieCast::where('id', $cast_id)->first();
+        if (!$movie_cast) {
+            return [
+                'success' => false,
+                'message' => 'Cast not found.',
+                'data' => null,
+            ];
+        } else {
+            $movie_cast->delete();
+            return [
+                'success' => true,
+                'message' => 'Cast deleted successfully.',
+                'data' => $movie_cast,
+            ];
+        }
     }
 }

@@ -196,27 +196,36 @@ class MovieController extends Controller
         ], 200);
     }
 
-    public function getAllLanguages()
-    {
-        try {
-            $out_data = $this->languageRepository->getAllLanguages();
-            $out_data = [
-                'success' => $out_data['success'],
-                'message' => $out_data['message'],
-                'data' => $out_data['data'],
-            ];
-        } catch (\Exception $e) {
-            $this->logError(request()->url(), $e->getMessage());
-            $output['success'] = false;
-            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
-            $output['data'] = null;
-        }
+   public function getAllLanguages(Request $request)
+{
+    try {
+        $perPage = $request->get('per_page', 5); 
+
+        $out_data = $this->languageRepository->getAllLanguages($perPage);
+
+    } catch (\Exception $e) {
+        $this->logError(request()->url(), $e->getMessage());
+
         return response()->json([
-            'success' => $out_data['success'],
-            'message' => $out_data['message'],
-            'output' => $out_data['data']
-        ], 200);
+            'success' => false,
+            'message' => 'Something went wrong, please try again',
+            'output' => null
+        ], 500);
     }
+
+    return response()->json([
+        'success' => $out_data['success'],
+        'message' => $out_data['message'],
+        'output' => $out_data['data']->items(), 
+        'pagination' => [
+            'current_page' => $out_data['data']->currentPage(),
+            'per_page'     => $out_data['data']->perPage(),
+            'total'        => $out_data['data']->total(),
+            'last_page'    => $out_data['data']->lastPage(),
+            'has_next'     => $out_data['data']->hasMorePages()
+        ]
+    ], 200);
+}
 
     public function getLanguageById($language_id)
     {
@@ -508,6 +517,24 @@ class MovieController extends Controller
     }
 
 
+    public function getMovies()
+    {
+        try {
+            $out_data = $this->languageRepository->getMovieRolls();
+            $output['success'] = $out_data['success'];
+            $output['message'] = $out_data['message'];
+            $output['data'] = $out_data['data'];
+        } catch (\Exception $e) {
+            $this->logerError(request()->url(), $e->getMessage());
+            $output['success'] = false;
+            $output['message'] = 'Something went wrong, please try again: ' . $e->getMessage();
+            $output['data'] = null;
+        } finally {
+            return response()->json($output, 200);
+        }
+    }
+
+
     public function updateMovie(Request $request, $movie_id)
     {
         try {
@@ -570,6 +597,213 @@ class MovieController extends Controller
                 'success' => false,
                 'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
                 'output' => null
+            ], 500);
+        }
+    }
+
+    //Movie Trailer
+
+    public function createMovietrailer(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'movie_id' => 'required|integer',
+                'trailer'  => 'required|string',
+                'size'     => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'output'  => $validator->errors()->first(),
+                ], 422);
+            }
+
+            $data = $request->all();
+            $out_data = $this->languageRepository->createMovieTrailer($data);
+
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output'  => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again',
+                'output'  => null,
+            ], 500);
+        }
+    }
+
+
+    public function getAllMovieTrailer()
+    {
+        try {
+            $out_data = $this->languageRepository->getMovieTrailers();
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    public function getMovieTrailerById($movie_trailer_id)
+    {
+        try {
+            $out_data = $this->languageRepository->getSingleMovieTrailer($movie_trailer_id);
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    public function updateMovieTrailer(Request $request, $movie_trailer_id)
+    {
+        try {
+            $validator =  Validator::make(request()->all(), [
+                'movie_id' => 'required|integer',
+                'trailer' => 'required|string',
+                'size' => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'output' => $validator->errors()->first()
+                ], 422);
+            }
+            $data = $request->all();
+            $data['movie_trailer_id'] = $movie_trailer_id;
+            $out_data = $this->languageRepository->updateMovieTrailer($data);
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    public function deleteMovieTrailer($movie_trailer_id)
+    {
+        try {
+            $out_data = $this->languageRepository->deleteMovieTrailer($movie_trailer_id);
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again: ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    //Movie Cast
+
+    public function createMovieCast(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'movie_id'    => 'required|integer|exists:movies,id',
+                'role'        => 'required|integer|exists:movie_roles,id',
+                'full_name'   => 'required|string|max:255',
+                'cast_name'   => 'nullable|string|max:255',
+                'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'is_active'   => 'sometimes|boolean',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'output' => $validator->errors()->first(),
+                ], 422);
+            }
+
+            $data = $request->all();
+            $out_data = $this->languageRepository->createMovieCast($data);
+
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again',
+                'output' => null,
+            ], 500);
+        }
+    }
+
+    public function getAllMovieCast()
+    {
+        try {
+            $out_data = $this->languageRepository->getAllMovieCast();
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again',
+                'output' => null,
+            ], 500);
+        }
+    }
+
+    public function getSingleMovieCast($movie_cast_id)
+    {
+        try {
+            $out_data = $this->languageRepository->getSingleMovieCast($movie_cast_id);
+            return response()->json([
+                'success' => $out_data['success'],
+                'message' => $out_data['message'],
+                'output' => $out_data['data'],
+            ], 200);
+        } catch (\Exception $e) {
+            $this->logError(request()->url(), $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again',
+                'output' => null,
             ], 500);
         }
     }

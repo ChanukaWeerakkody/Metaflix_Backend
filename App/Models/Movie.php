@@ -25,6 +25,8 @@ class Movie extends Model
         'description',
         'cover_image',
         'main_image',
+        'created_by',
+        'updated_by',
     ];
     protected $casts = [
         'id'           => 'integer',
@@ -41,5 +43,7 @@ class Movie extends Model
         'description' => 'string',
         'cover_image'  => 'string',
         'main_image'   => 'string',
+        'created_by'   => 'string',
+        'updated_by'   => 'string',
     ];
 }
