@@ -26,4 +26,9 @@ class Role extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function permissions()
+    {
+        return $this->hasMany(Permission::class, 'role_id');
+    }
 }
