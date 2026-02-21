@@ -26,6 +26,8 @@ Route::post('permission/edit', [UserController::class, 'editPermission']);
 Route::post('permission/all', [UserController::class, 'getPermissions']);
 Route::post('permission/delete', [UserController::class, 'deletePermission']);
 
+Route::post('upload/files', [MovieController::class, 'uploadFilesToCloudinary']);
+
 Route::group(['middleware' => ['jwt.auth']], function () {//authentication middleware
     Route::post('auth/user', [UserController::class, 'userData']);
 
